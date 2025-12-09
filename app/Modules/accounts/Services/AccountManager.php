@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Modules\Accounts\Services;
+namespace App\Modules\accounts\Services;
 
 use Illuminate\Support\Facades\DB;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
-class AccountRegistrationService
+class AccountManager
 {
-    protected $userService;
-    protected $clientService;
-    protected $bankAccountService;
+    protected UserService $userService;
+    protected ClientService $clientService;
+    protected BankAccountService $bankAccountService;
 
     public function __construct(
         UserService $userService,
@@ -21,19 +21,27 @@ class AccountRegistrationService
         $this->bankAccountService = $bankAccountService;
     }
 
-    public function registerUserWithAccount(array $data): array
+    /**
+     * Register user + client + bank account atomically.
+     *
+     * @param array $data
+     * @return array ['token', 'user', 'client', 'account']
+     *
+     * @throws \Exception
+     */
+    public function registerWithAccount(array $data): array
     {
         return DB::transaction(function () use ($data) {
-            // 1. Create User
+            // 1. create user
             $user = $this->userService->createUser($data);
 
-            // 2. Create Client
+            // 2. create client
             $client = $this->clientService->createClient($user->id, $data);
 
-            // 3. Create Bank Account
+            // 3. create bank account
             $account = $this->bankAccountService->createAccount($client->id, $data);
 
-            // 4. Generate JWT
+            // 4. token
             $token = JWTAuth::fromUser($user);
 
             return [

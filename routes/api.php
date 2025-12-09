@@ -11,13 +11,15 @@ Route::get('/user', function (Request $request) {
 
 
 Route::prefix('accounts')->group(function () {
+    //facade pattrens
     Route::post('/register', [BankAccountController::class, 'registerWithBankAccount']);
+
     Route::put('/{id}', [BankAccountController::class, 'update']);
     Route::patch('/{id}/close', [BankAccountController::class, 'close']);
 
-//State Design Pattrens
-    Route::patch('/{id}/deposit/{amount}', [AccountStateController::class, 'deposit']);//ايداع
-    Route::patch('/{id}/withdraw/{amount}', [AccountStateController::class, 'withdraw']);//سحب
+    //State Design Pattrens
+    Route::patch('/{id}/deposit/{amount}', [AccountStateController::class, 'deposit']); //ايداع
+    Route::patch('/{id}/withdraw/{amount}', [AccountStateController::class, 'withdraw']); //سحب
     Route::patch('/{id}/close', [AccountStateController::class, 'close']);
     Route::patch('/{id}/freeze', [AccountStateController::class, 'freeze']);
     Route::patch('/{id}/suspend', [AccountStateController::class, 'suspend']);
