@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Accounts\Models;
 
-use App\Enums\AccountStatus;
+use App\Models\Client;
 use App\Enums\AccountType;
+use App\Enums\AccountStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class BankAccount extends Model
 {
-    protected $fillable = [
-        'customer_id',
+ protected $fillable = [
+        'client_id',
         'account_number',
         'type',
         'status',
@@ -30,5 +31,4 @@ class BankAccount extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
-    }
-}
+    }}

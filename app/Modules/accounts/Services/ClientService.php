@@ -1,0 +1,23 @@
+<?php
+
+namespace App\Modules\Accounts\Services;
+
+use App\Models\Client;
+
+class ClientService
+{
+    public function createClient(int $userId, array $data): Client
+    {
+        return Client::create([
+            'user_id'          => $userId,
+            'customer_number'  => $this->generateCustomerNumber(),
+            'employment_status'=> $data['employment_status'] ?? null,
+            'marital_status'   => $data['marital_status'] ?? null,
+        ]);
+    }
+
+    private function generateCustomerNumber(): string
+    {
+        return 'CUST-' . rand(100000, 999999);
+    }
+}
