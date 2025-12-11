@@ -21,7 +21,7 @@ class BankAccount extends Model
         'opened_at',
         'closed_at',
     ];
-
+//لحتى نحول انواع الحقول تلقائيا عند القراءة و الكتابة
     protected $casts = [
         'type' => AccountType::class,
         'status' => AccountStatus::class,
@@ -36,6 +36,11 @@ class BankAccount extends Model
     }
   protected $state;
 
+  /*
+  retrieved()
+
+هاد حدث يأتي من Eloquent ويُطلق كل مرة يتم فيها جلب سجل من قاعدة البيانات.
+*/
     protected static function booted()
     {
         static::retrieved(function ($account) {

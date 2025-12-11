@@ -56,4 +56,25 @@ class Transaction extends Model
     {
         return $this->belongsTo(User::class, 'approved_by_user_id');
     }
+    /**
+     * تعيين الموافقة على المعاملة
+     */
+    public function approveBy(string $role): self
+    {
+        $this->status = 'approved';
+        $this->approved_by = $role;
+        $this->save();
+        return $this;
+    }
+
+    /**
+     * رفض المعاملة
+     */
+    public function reject(string $reason): self
+    {
+        $this->status = 'rejected';
+        $this->approved_by = $reason;
+        $this->save();
+        return $this;
+    }
 }
