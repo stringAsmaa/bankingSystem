@@ -34,9 +34,8 @@ class StripeAdapter implements PaymentGateway
                 'metadata' => [
                     'transaction_id' => $payload['transaction_id'],
                 ],
-                'success_url' => config('app.url').'/deposit/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url' => config('app.url').'/deposit/cancel',
-
+                'success_url' => rtrim(config('app.url'), '/') . '/api/deposit/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url'  => rtrim(config('app.url'), '/') . '/api/deposit/cancel',
             ]);
 
             return [
@@ -50,15 +49,5 @@ class StripeAdapter implements PaymentGateway
                 'error' => $e->getMessage(),
             ];
         }
-    }
-
-    public function charge(array $payload): array
-    {
-        return [];
-    }
-
-    public function refund(string $chargeId, ?float $amount = null): array
-    {
-        return [];
     }
 }

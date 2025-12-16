@@ -4,10 +4,17 @@ namespace App\Modules\Transactions\Controllers;
 
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
+use App\Modules\Accounts\Models\BankAccount;
+use App\Modules\accounts\Repositories\BankAccountRepositoryInterface;
+use App\Modules\Transactions\Enums\TransactionStatus;
+use App\Modules\Transactions\Models\Transaction;
 use App\Modules\Transactions\Requests\DepositTransactionRequest;
 use App\Modules\Transactions\Resources\TransactionResource;
+use App\Modules\Transactions\Services\ApplyTransactionToAccountService;
 use App\Modules\Transactions\Services\DepositTransactionService;
-use Illuminate\Support\Facades\Log;
+use App\Modules\Transactions\Services\TransactionRulesService;
+use App\Modules\Transactions\Services\TransactionServiceHelper;
+use Illuminate\Http\Request;
 
 class DepositTransactionController extends Controller
 {
@@ -15,11 +22,40 @@ class DepositTransactionController extends Controller
 
     public function deposit(DepositTransactionRequest $request)
     {
-        $transaction = $this->service->deposit($request->validated() + [
-            'user_id' => $request->user()->id,
-        ]);
+        $account = BankAccount::findOrFail($request->source_account_id);
+        TransactionServiceHelper::ensureAccountOwnership($account, $request->user()->id);
 
-        //  Log::info('stripe response', $transaction);
-        return ApiResponse::sendResponse(200, 'ok', new TransactionResource($transaction));
+        $transaction = $this->service->deposit(
+            $request->validated() + ['user_id' => $request->user()->id]
+        );
+        return ApiResponse::sendResponse(200, "Deposit completed successfully.", new TransactionResource($transaction));
+    }
+
+    public function success(Request $request)
+    {
+        $sessionId = $request->query('session_id');
+
+        $transaction = Transaction::all()->firstWhere('metadata.checkout_session_id', $sessionId);
+
+        $rulesService = new TransactionRulesService();
+        $status = $rulesService->validate(
+            $transaction->transaction_amount,
+            $transaction->sourceAccount->balance,
+            $transaction->transaction_currency
+        );
+        if ($status === TransactionStatus::PENDING) {
+            $transaction->transaction_status = TransactionStatus::COMPLETED;
+            $transaction->save();
+            $applyService = new ApplyTransactionToAccountService(app(BankAccountRepositoryInterface::class));
+            $applyService->apply($transaction);
+        }
+        return response()->view('deposit.success', [
+            'session_id' => $sessionId
+        ]);
+    }
+
+    public function cancel()
+    {
+        return response()->view('deposit.cancel');
     }
 }

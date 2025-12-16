@@ -6,6 +6,7 @@ use App\Modules\Transactions\Controllers\DepositTransactionController;
 use App\Modules\Transactions\Controllers\TransactionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Modules\Transactions\Controllers\WithdrawalTransactionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -37,3 +38,11 @@ Route::prefix('transactions')->group(function () {
 Route::middleware('auth:api')->group(function () {
     Route::post('transactions/deposit', [DepositTransactionController::class, 'deposit']);
 });
+
+Route::get('/deposit/success', [DepositTransactionController::class, 'success'])->name('deposit.success');
+Route::get('/deposit/cancel', [DepositTransactionController::class, 'cancel'])->name('deposit.cancel');
+
+Route::prefix('transactions')->middleware('auth:api')->group(function () {
+    Route::post('/withdraw', [WithdrawalTransactionController::class, 'withdraw']);
+});
+
