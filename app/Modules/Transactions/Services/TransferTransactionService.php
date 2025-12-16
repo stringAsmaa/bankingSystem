@@ -40,7 +40,6 @@ class TransferTransactionService
                 $sourceAccount->balance,
                 $currency
             );
-            $status = TransactionStatus::COMPLETED;
 
             $transaction = $this->repository->create([
                 'transaction_reference' => Str::uuid(),
@@ -54,8 +53,9 @@ class TransferTransactionService
                 'created_by_user_id' => $data['user_id'],
             ]);
 
+            if ($status === TransactionStatus::COMPLETED) {
                 $this->applyService->apply($transaction);
-
+            }
             return $transaction;
         });
     }

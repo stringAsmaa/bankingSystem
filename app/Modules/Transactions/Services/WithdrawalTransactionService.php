@@ -24,28 +24,26 @@ class WithdrawalTransactionService
         $currency = $data['transaction_currency'] ?? 'USD';
         $amount = $data['transaction_amount'];
 
-        // التحقق من القواعد: هل الرصيد كافي؟
         $status = $this->rulesService->validate($amount, $account->balance, $currency);
 
         if ($status === TransactionStatus::FAILED || $amount > $account->balance) {
             throw new DomainException('Not enough balance to complete withdrawal.');
         }
 
-        // إنشاء المعاملة
         $transaction = $this->repository->create([
             'transaction_reference' => Str::uuid(),
             'source_account_id' => $account->id,
             'transaction_type' => TransactionType::WITHDRAWAL,
             'transaction_amount' => $amount,
             'transaction_currency' => $currency,
-            'transaction_status' => TransactionStatus::COMPLETED, // مباشرة مكتملة إذا الرصيد كافي
+            'transaction_status' => $status,
             'notes' => $data['notes'] ?? null,
             'created_by_user_id' => $data['user_id'],
         ]);
 
-        // تطبيق المعاملة على الحساب
-        $this->applyService->apply($transaction);
-
+        if ($status === TransactionStatus::COMPLETED) {
+            $this->applyService->apply($transaction);
+        }
         return $transaction;
     }
 }

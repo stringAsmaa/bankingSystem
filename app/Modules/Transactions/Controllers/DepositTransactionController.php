@@ -37,16 +37,10 @@ class DepositTransactionController extends Controller
 
         $transaction = Transaction::all()->firstWhere('metadata.checkout_session_id', $sessionId);
 
-        $rulesService = new TransactionRulesService();
-        $status = $rulesService->validate(
-            $transaction->transaction_amount,
-            $transaction->sourceAccount->balance,
-            $transaction->transaction_currency
-        );
-        if ($status === TransactionStatus::PENDING) {
-            $transaction->transaction_status = TransactionStatus::COMPLETED;
-            $transaction->save();
-            $applyService = new ApplyTransactionToAccountService(app(BankAccountRepositoryInterface::class));
+        if ($transaction->transaction_status === TransactionStatus::COMPLETED) {
+            $applyService = new ApplyTransactionToAccountService(
+                app(BankAccountRepositoryInterface::class)
+            );
             $applyService->apply($transaction);
         }
         return response()->view('deposit.success', [

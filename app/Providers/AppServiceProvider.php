@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Modules\Accounts\Models\BankAccount;
+use App\Modules\Accounts\Observers\BankAccountObserver;
 use App\Modules\Transactions\Integrations\PaymentGateway;
 use App\Modules\Transactions\Integrations\StripeAdapter;
 use App\Modules\Transactions\Repositories\TransactionRepository;
@@ -49,6 +51,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        BankAccount::observe(BankAccountObserver::class);
     }
 }
