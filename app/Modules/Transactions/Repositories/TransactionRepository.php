@@ -16,6 +16,11 @@ class TransactionRepository implements TransactionRepositoryInterface
         return Transaction::where('transaction_reference', $reference)->first();
     }
 
+    public function findById(int $id): ?Transaction
+    {
+        return Transaction::find($id);
+    }
+
     public function save(Transaction $transaction): Transaction
     {
         $transaction->save();
