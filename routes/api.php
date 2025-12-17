@@ -7,13 +7,14 @@ use App\Modules\Accounts\Controllers\AuthController;
 use App\Modules\Accounts\Controllers\BankAccountController;
 use App\Modules\Accounts\Controllers\AccountStateController;
 use App\Modules\Transactions\Controllers\TransactionController;
+use App\Modules\administratives\Controllers\DashboardController;
 use App\Modules\Transactions\Controllers\DepositTransactionController;
 use App\Modules\Transactions\Controllers\TransferTransactionController;
 use App\Modules\Transactions\Controllers\WithdrawalTransactionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
-})->middleware('auth:sanctum');
+})->middleware('auth:api');
 
 /**
  * تسجيل مستخدم جديد لأي رول: teller, manager, admin
@@ -54,3 +55,11 @@ Route::middleware('auth:api')->prefix('transactions')->group(function () {
 
 Route::get('/deposit/success', [DepositTransactionController::class, 'success'])->name('deposit.success');
 Route::get('/deposit/cancel', [DepositTransactionController::class, 'cancel'])->name('deposit.cancel');
+
+
+
+
+// ////////////////administratives Module///////////////////
+
+Route::middleware(['auth:api', 'role:Admin|Manager'])
+    ->get('/dashboard', [DashboardController::class, 'index']);
