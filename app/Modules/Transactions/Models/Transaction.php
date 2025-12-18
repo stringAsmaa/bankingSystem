@@ -3,13 +3,17 @@
 namespace App\Modules\Transactions\Models;
 
 use App\Models\User;
-use App\Modules\Accounts\Models\BankAccount;
-use App\Modules\Transactions\Enums\TransactionStatus;
-use App\Modules\Transactions\Enums\TransactionType;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
+use App\Modules\Accounts\Models\BankAccount;
+use App\Modules\Transactions\Enums\TransactionType;
+use App\Modules\Transactions\Enums\TransactionStatus;
 
 class Transaction extends Model
 {
+    use LogsActivity;
+
     protected $table = 'transactions';
 
     protected $fillable = [
@@ -37,6 +41,15 @@ class Transaction extends Model
         'transaction_status' => TransactionStatus::class,
     ];
 
+public function getActivitylogOptions(): LogOptions
+{
+    return LogOptions::defaults()
+        ->logOnly(['transaction_amount', 'transaction_status'])
+        ->useLogName('transactions')
+        ->logOnlyDirty();
+}
+
+
     public function sourceAccount()
     {
         return $this->belongsTo(BankAccount::class, 'source_account_id');
@@ -57,9 +70,6 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'approved_by_user_id');
     }
 
-    /**
-     * تعيين الموافقة على المعاملة
-     */
     public function approveBy(string $role): self
     {
         $this->transaction_status = 'approved';
@@ -69,13 +79,10 @@ class Transaction extends Model
         return $this;
     }
 
-    /**
-     * رفض المعاملة
-     */
     public function reject(string $reason): self
     {
         $this->transaction_status = 'rejected';
-        $this->approved_by = $reason;
+        $this->approved_by_user_id = $reason;
         $this->save();
 
         return $this;
