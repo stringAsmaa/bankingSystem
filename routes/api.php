@@ -6,6 +6,7 @@ use App\Http\Controllers\UserRegistrationController;
 use App\Modules\Accounts\Controllers\AuthController;
 use App\Modules\Accounts\Controllers\BankAccountController;
 use App\Modules\Accounts\Controllers\AccountStateController;
+use App\Modules\administratives\Controllers\ReportController;
 use App\Modules\Transactions\Controllers\TransactionController;
 use App\Modules\administratives\Controllers\DashboardController;
 use App\Modules\Transactions\Controllers\DepositTransactionController;
@@ -63,3 +64,11 @@ Route::get('/deposit/cancel', [DepositTransactionController::class, 'cancel'])->
 
 Route::middleware(['auth:api', 'role:Admin|Manager'])
     ->get('/dashboard', [DashboardController::class, 'index']);
+
+
+
+Route::prefix('reports')->middleware('auth:api')->group(function () {
+    Route::get('daily-transactions', [ReportController::class, 'dailyTransactions'])->middleware(['role:Admin|Manager']);
+    Route::get('account-summaries', [ReportController::class, 'accountSummaries'])->middleware(['role:Admin|Manager']);
+    Route::get('audit-logs', [ReportController::class, 'auditLogs'])->middleware([ 'role:Admin|Manager']);
+});

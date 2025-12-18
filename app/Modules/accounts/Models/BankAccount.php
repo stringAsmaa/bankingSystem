@@ -2,16 +2,21 @@
 
 namespace App\Modules\Accounts\Models;
 
-use App\Enums\AccountStatus;
-use App\Enums\AccountType;
 use App\Models\Client;
-use App\Modules\Accounts\Services\BankAccountService;
-use App\Modules\accounts\States\AccountState;
-use App\Modules\accounts\States\ActiveState;
+use App\Enums\AccountType;
+use App\Enums\AccountStatus;
+use Spatie\Activitylog\LogOptions;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use App\Modules\accounts\States\ActiveState;
+use App\Modules\accounts\States\AccountState;
+use App\Modules\Transactions\Models\Transaction;
+use App\Modules\Accounts\Services\BankAccountService;
 
 class BankAccount extends Model
 {
+        use LogsActivity;
+
     protected $fillable = [
         'client_id',
         'account_number',
@@ -33,6 +38,13 @@ class BankAccount extends Model
         'closed_at' => 'datetime',
     ];
 
+    public function getActivitylogOptions(): LogOptions
+{
+    return LogOptions::defaults()
+        ->logOnly(['type', 'status'])
+        ->useLogName('bankAccounts')
+        ->logOnlyDirty();
+}
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
@@ -132,5 +144,9 @@ class BankAccount extends Model
         $data['parent_id'] = $this->id;
 
         return app(BankAccountService::class)->createAccount($this->client_id, $data);
+    }
+      public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'source_account_id');
     }
 }
