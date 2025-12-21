@@ -9,7 +9,7 @@ use App\Modules\Accounts\Controllers\AccountStateController;
 use App\Modules\administratives\Controllers\ReportController;
 use App\Modules\Transactions\Controllers\TransactionController;
 use App\Modules\administratives\Controllers\DashboardController;
-use App\Modules\Support\Controllers\TicketController;
+use App\Modules\Customer\Controllers\TicketController;
 use App\Modules\Transactions\Controllers\AuditLogController;
 use App\Modules\Transactions\Controllers\DepositTransactionController;
 use App\Modules\Transactions\Controllers\RecommendationController;
