@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Accounts\Services;
+namespace App\Modules\Transactions\Services;
 
 use App\Models\User;
 use App\Modules\Accounts\Models\DeviceToken;
@@ -67,8 +67,7 @@ class NotificationService
 
     public function sendToRole(string $roleName, string $title, string $body, array $data = []): bool
     {
-        $users = User::role($roleName)->get();
-
+        $users = User::role('Admin')->get();
         if ($users->isEmpty()) {
             Log::warning("No users found with role={$roleName}");
             return false;

@@ -9,7 +9,7 @@ class DeviceToken extends Model
 {
     protected $fillable = [
         'user_id',
-        'token',
+        'device_token',
     ];
 
     public function user()

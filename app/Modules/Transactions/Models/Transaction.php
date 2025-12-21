@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use App\Modules\Accounts\Models\BankAccount;
+use App\Modules\Transactions\Enums\TransactionFrequency;
 use App\Modules\Transactions\Enums\TransactionType;
 use App\Modules\Transactions\Enums\TransactionStatus;
 
@@ -30,6 +31,9 @@ class Transaction extends Model
         'approved_by_user_id',
         'approved_at',
         'completed_at',
+        'is_recurring',
+        'next_run_at',
+        'frequency',
     ];
 
     protected $casts = [
@@ -39,6 +43,8 @@ class Transaction extends Model
         'completed_at' => 'datetime',
         'transaction_type' => TransactionType::class,
         'transaction_status' => TransactionStatus::class,
+        'frequency' => TransactionFrequency::class,
+        'next_run_at' => 'datetime',
     ];
 
 public function getActivitylogOptions(): LogOptions

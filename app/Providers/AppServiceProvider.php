@@ -6,8 +6,14 @@ use App\Modules\Accounts\Models\BankAccount;
 use App\Modules\Accounts\Observers\BankAccountObserver;
 use App\Modules\Transactions\Integrations\PaymentGateway;
 use App\Modules\Transactions\Integrations\StripeAdapter;
+use App\Modules\Transactions\Models\Transaction;
+use App\Modules\Transactions\Observers\TransactionObserver;
 use App\Modules\Transactions\Repositories\TransactionRepository;
 use App\Modules\Transactions\Repositories\TransactionRepositoryInterface;
+use App\Modules\Transactions\Services\RecommendationService;
+use App\Modules\Transactions\Strategies\HighSpendingStrategy;
+use App\Modules\Transactions\Strategies\RecurringTransactionsStrategy;
+use App\Modules\Transactions\Strategies\StableActivityStrategy;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -44,6 +50,14 @@ class AppServiceProvider extends ServiceProvider
                 $app->make(\App\Modules\Accounts\Services\BankAccountService::class),
             );
         });
+
+        $this->app->singleton(RecommendationService::class, function () {
+            return new RecommendationService([
+                new HighSpendingStrategy(),
+                new RecurringTransactionsStrategy(),
+                new StableActivityStrategy(),
+            ]);
+        });
     }
 
     /**
@@ -52,5 +66,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         BankAccount::observe(BankAccountObserver::class);
+        Transaction::observe(TransactionObserver::class);
     }
 }

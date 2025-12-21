@@ -22,6 +22,10 @@ class TransactionResource extends JsonResource
             'approved_at' => $this->approved_at,
             'completed_at' => $this->completed_at,
             'created_at' => $this->created_at,
+            // بحال هي المعاملة مجدولة
+            'is_recurring' => (bool) $this->is_recurring,
+            'frequency' => $this->frequency?->value,
+            'next_run_at' => $this->next_run_at,
         ];
     }
 }

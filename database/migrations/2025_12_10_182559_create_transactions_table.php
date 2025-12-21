@@ -37,6 +37,10 @@ return new class extends Migration
             $table->foreignId('created_by_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('approved_by_user_id')->nullable()->constrained('users')->nullOnDelete();
 
+            $table->boolean('is_recurring')->default(false);
+            $table->dateTime('next_run_at')->nullable();
+            $table->string('frequency')->nullable();
+
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('completed_at')->nullable();
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EmploymentStatus;
 use App\Enums\MaritalStatus;
+use App\Modules\Accounts\Models\BankAccount;
 use Illuminate\Database\Eloquent\Model;
 
 class Client extends Model

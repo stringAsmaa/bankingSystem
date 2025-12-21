@@ -9,7 +9,12 @@ use App\Modules\Accounts\Controllers\AccountStateController;
 use App\Modules\administratives\Controllers\ReportController;
 use App\Modules\Transactions\Controllers\TransactionController;
 use App\Modules\administratives\Controllers\DashboardController;
+use App\Modules\Support\Controllers\TicketController;
+use App\Modules\Transactions\Controllers\AuditLogController;
 use App\Modules\Transactions\Controllers\DepositTransactionController;
+use App\Modules\Transactions\Controllers\RecommendationController;
+use App\Modules\Transactions\Controllers\RecurringTransactionController;
+use App\Modules\Transactions\Controllers\TransactionSettingController;
 use App\Modules\Transactions\Controllers\TransferTransactionController;
 use App\Modules\Transactions\Controllers\WithdrawalTransactionController;
 
@@ -51,6 +56,7 @@ Route::middleware('auth:api')->prefix('transactions')->group(function () {
     Route::post('/withdraw', [WithdrawalTransactionController::class, 'withdraw']);
     Route::post('/transfer', [TransferTransactionController::class, 'transfer']);
     Route::post('{id}/approve', [TransactionController::class, 'approveTransaction']);
+    Route::post('/recurring', [RecurringTransactionController::class, 'store']);
 });
 
 
@@ -70,5 +76,23 @@ Route::middleware(['auth:api', 'role:Admin|Manager'])
 Route::prefix('reports')->middleware('auth:api')->group(function () {
     Route::get('daily-transactions', [ReportController::class, 'dailyTransactions'])->middleware(['role:Admin|Manager']);
     Route::get('account-summaries', [ReportController::class, 'accountSummaries'])->middleware(['role:Admin|Manager']);
-    Route::get('audit-logs', [ReportController::class, 'auditLogs'])->middleware([ 'role:Admin|Manager']);
+    Route::get('audit-logs', [ReportController::class, 'auditLogs'])->middleware(['role:Admin|Manager']);
 });
+
+//////////////////////////////// Support Module //////////////////////////////////////////
+
+Route::prefix('tickets')->middleware('auth:api')->group(function () {
+    Route::get('/', [TicketController::class, 'index']);
+    Route::post('/', [TicketController::class, 'store'])->middleware('role:Client');
+    Route::get('{ticket}', [TicketController::class, 'show']);
+    Route::post('/reply/{ticket}', [TicketController::class, 'reply']);
+    Route::patch('/close/{ticket}', [TicketController::class, 'close']);
+});
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/transactions/recommendations',[RecommendationController::class, 'index']);
+    Route::put('/transaction-settings', [TransactionSettingController::class, 'update']);
+    Route::get('/audit-logs', [AuditLogController::class, 'index']);//->middleware('role:Admin');
+});
+
