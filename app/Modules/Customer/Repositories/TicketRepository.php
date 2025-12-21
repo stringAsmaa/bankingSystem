@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Support\Repositories;
+namespace App\Modules\Customer\Repositories;
 
-use App\Modules\Support\Models\Ticket;
+use App\Modules\Customer\Models\Ticket;
 
 class TicketRepository
 {
