@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Support\Resources;
+namespace App\Modules\Customer\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 

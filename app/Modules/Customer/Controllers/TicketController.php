@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Modules\Support\Controllers;
+namespace App\Modules\Customer\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Helpers\ApiResponse;
-use App\Modules\Support\Requests\CreateTicketRequest;
-use App\Modules\Support\Requests\ReplyTicketRequest;
-use App\Modules\Support\Services\TicketService;
-use App\Modules\Support\Models\Ticket;
-use App\Modules\Support\Resources\TicketResource;
+use App\Modules\Customer\Requests\CreateTicketRequest;
+use App\Modules\Customer\Requests\ReplyTicketRequest;
+use App\Modules\Customer\Services\TicketService;
+use App\Modules\Customer\Models\Ticket;
+use App\Modules\Customer\Resources\TicketResource;
 use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
