@@ -2,22 +2,19 @@
 
 namespace App\Modules\Accounts\Controllers;
 
-use App\Helpers\ApiResponse;
-use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Modules\Accounts\Models\DeviceToken;
+use App\Helpers\ApiResponse;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Modules\Accounts\Models\DeviceToken;
+use App\Modules\accounts\Requests\LoginRequest;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $data = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-            'device_token' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $credentials = [
             'email' => $data['email'],
