@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Support\Requests;
+namespace App\Modules\Customer\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Modules\Support\Enums\TicketPriority;
+use App\Modules\Customer\Enums\TicketPriority;
 
 class CreateTicketRequest extends FormRequest
 {

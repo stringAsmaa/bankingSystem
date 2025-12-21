@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Support\Enums;
+namespace App\Modules\Customer\Enums;
 
 enum TicketStatus: string
 {

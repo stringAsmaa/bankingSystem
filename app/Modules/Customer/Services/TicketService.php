@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Support\Services;
+namespace App\Modules\Customer\Services;
 
-use App\Modules\Support\Models\Ticket;
-use App\Modules\Support\Models\TicketMessage;
-use App\Modules\Support\Enums\TicketStatus;
-use App\Modules\Support\Repositories\TicketRepository;
-use App\Modules\Support\Repositories\TicketMessageRepository;
+use App\Modules\Customer\Models\Ticket;
+use App\Modules\Customer\Models\TicketMessage;
+use App\Modules\Customer\Enums\TicketStatus;
+use App\Modules\Customer\Repositories\TicketRepository;
+use App\Modules\Customer\Repositories\TicketMessageRepository;
 
 class TicketService
 {
