@@ -3,6 +3,7 @@
 use App\Modules\Transactions\Handlers\ManagerHandler;
 use App\Modules\Transactions\Handlers\TransactionHandler;
 use App\Modules\Transactions\Models\Transaction;
+use App\Modules\Transactions\Models\TransactionSetting;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
 use Mockery;
@@ -13,7 +14,13 @@ afterEach(function () {
     Mockery::close();
 });
 
-it('approves transaction when amount is <= 10000 and user is manager', function () {
+/*
+|--------------------------------------------------------------------------
+| ManagerHandler Unit Tests
+|--------------------------------------------------------------------------
+*/
+
+it('approves transaction when amount is between 2x and 3x max_amount and user is manager', function () {
     $managerUser = new class {
         public int $id = 2;
         public function hasRole(string $role): bool
@@ -24,8 +31,21 @@ it('approves transaction when amount is <= 10000 and user is manager', function 
 
     Auth::shouldReceive('user')->once()->andReturn($managerUser);
 
+    // Mock TransactionSetting
+    $setting = (object) ['max_amount' => 5000];
+
+    Mockery::mock('alias:' . TransactionSetting::class)
+        ->shouldReceive('where')
+        ->once()
+        ->with('currency', 'USD')
+        ->andReturnSelf()
+        ->shouldReceive('first')
+        ->once()
+        ->andReturn($setting);
+
     $transaction = new Transaction();
-    $transaction->transaction_amount = 8000;
+    $transaction->transaction_amount = 12000; // بين 10000 و 15000
+    $transaction->transaction_currency = 'USD';
 
     $transaction = Mockery::mock($transaction)->makePartial();
     $transaction->shouldReceive('approveBy')
@@ -40,7 +60,7 @@ it('approves transaction when amount is <= 10000 and user is manager', function 
     expect($result)->toBe($transaction);
 });
 
-it('throws exception when amount is <= 10000 and user is not manager', function () {
+it('throws exception when amount is in manager range but user is not manager', function () {
     $user = new class {
         public function hasRole(string $role): bool
         {
@@ -50,8 +70,19 @@ it('throws exception when amount is <= 10000 and user is not manager', function 
 
     Auth::shouldReceive('user')->once()->andReturn($user);
 
+    $setting = (object) ['max_amount' => 5000];
+
+    Mockery::mock('alias:' . TransactionSetting::class)
+        ->shouldReceive('where')
+        ->once()
+        ->andReturnSelf()
+        ->shouldReceive('first')
+        ->once()
+        ->andReturn($setting);
+
     $transaction = new Transaction();
-    $transaction->transaction_amount = 5000;
+    $transaction->transaction_amount = 11000;
+    $transaction->transaction_currency = 'USD';
 
     $handler = new ManagerHandler();
 
@@ -59,7 +90,7 @@ it('throws exception when amount is <= 10000 and user is not manager', function 
         ->toThrow(Exception::class, 'Only Manager can approve this transaction');
 });
 
-it('passes transaction to next handler when amount is greater than 10000', function () {
+it('passes transaction to next handler when amount is greater than 3x max_amount', function () {
     $managerUser = new class {
         public function hasRole(string $role): bool
         {
@@ -69,8 +100,19 @@ it('passes transaction to next handler when amount is greater than 10000', funct
 
     Auth::shouldReceive('user')->once()->andReturn($managerUser);
 
+    $setting = (object) ['max_amount' => 5000];
+
+    Mockery::mock('alias:' . TransactionSetting::class)
+        ->shouldReceive('where')
+        ->once()
+        ->andReturnSelf()
+        ->shouldReceive('first')
+        ->once()
+        ->andReturn($setting);
+
     $transaction = new Transaction();
-    $transaction->transaction_amount = 15000;
+    $transaction->transaction_amount = 20000; // > 15000
+    $transaction->transaction_currency = 'USD';
 
     $nextHandler = Mockery::mock(TransactionHandler::class);
     $nextHandler->shouldReceive('handle')
@@ -86,7 +128,7 @@ it('passes transaction to next handler when amount is greater than 10000', funct
     expect($result)->toBe($transaction);
 });
 
-it('throws exception when amount is greater than 10000 and no next handler exists', function () {
+it('throws exception when amount requires admin approval and no next handler exists', function () {
     $managerUser = new class {
         public function hasRole(string $role): bool
         {
@@ -96,8 +138,19 @@ it('throws exception when amount is greater than 10000 and no next handler exist
 
     Auth::shouldReceive('user')->once()->andReturn($managerUser);
 
+    $setting = (object) ['max_amount' => 5000];
+
+    Mockery::mock('alias:' . TransactionSetting::class)
+        ->shouldReceive('where')
+        ->once()
+        ->andReturnSelf()
+        ->shouldReceive('first')
+        ->once()
+        ->andReturn($setting);
+
     $transaction = new Transaction();
     $transaction->transaction_amount = 20000;
+    $transaction->transaction_currency = 'USD';
 
     $handler = new ManagerHandler();
 
