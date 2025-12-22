@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Modules\Accounts\Models\BankAccount;
 use App\Modules\Accounts\Observers\BankAccountObserver;
+use App\Modules\Transactions\Integrations\Decorators\LoggingPaymentGatewayDecorator;
 use App\Modules\Transactions\Integrations\PaymentGateway;
 use App\Modules\Transactions\Integrations\StripeAdapter;
 use App\Modules\Transactions\Models\Transaction;
@@ -27,10 +28,11 @@ class AppServiceProvider extends ServiceProvider
             TransactionRepositoryInterface::class,
             TransactionRepository::class
         );
-        $this->app->bind(
-            PaymentGateway::class,
-            StripeAdapter::class
-        );
+        $this->app->bind(PaymentGateway::class, function () {
+            return new LoggingPaymentGatewayDecorator(
+                new StripeAdapter()
+            );
+        });
         $this->app->bind(
             \App\Modules\accounts\Repositories\BankAccountRepositoryInterface::class,
             \App\Modules\accounts\Repositories\BankAccountRepository::class

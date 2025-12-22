@@ -19,7 +19,7 @@ class ManagerHandler implements TransactionHandler
     public function handle(Transaction $transaction): Transaction
     {
         $manager = auth()->user();
-        $setting = TransactionSetting::where('currency', $transaction->currency)->first();
+        $setting = TransactionSetting::where('currency', $transaction->transaction_currency)->first();
         if ($transaction->transaction_amount >= 2 * ($setting->max_amount) && $transaction->transaction_amount <= 3 * ($setting->max_amount)) {
             if (! $manager->hasRole('Manager')) {
                 throw new \Exception('Only Manager can approve this transaction');

@@ -19,7 +19,7 @@ class TellerHandler implements TransactionHandler
     public function handle(Transaction $transaction): Transaction
     {
         $teller = auth()->user();
-        $setting = TransactionSetting::where('currency', $transaction->currency)->first();
+        $setting = TransactionSetting::where('currency', $transaction->transaction_currency)->first();
         if ($transaction->transaction_amount <= 2 * ($setting->max_amount) && $transaction->transaction_amount >= $setting->max_amount) {
             if (! $teller->hasRole('Teller')) {
                 throw new \Exception('Only Teller can approve this transaction');

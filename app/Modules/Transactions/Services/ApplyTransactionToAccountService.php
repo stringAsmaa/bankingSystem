@@ -3,8 +3,6 @@
 namespace App\Modules\Transactions\Services;
 
 use App\Modules\Transactions\Models\Transaction;
-use App\Enums\AccountStatus;
-use App\Helpers\ApiResponse;
 use App\Modules\Transactions\Enums\TransactionStatus;
 use App\Modules\Transactions\Enums\TransactionType;
 use App\Modules\Accounts\Models\BankAccount;
@@ -14,7 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class ApplyTransactionToAccountService
 {
-    public function __construct(protected BankAccountRepositoryInterface $bankRepo) {}
+    public function __construct(
+        protected BankAccountRepositoryInterface $bankRepo
+    ) {}
 
     public function apply(Transaction $transaction): void
     {
@@ -27,49 +27,66 @@ class ApplyTransactionToAccountService
 
         DB::transaction(function () use ($transaction) {
 
-            $account = BankAccount::findOrFail($transaction->source_account_id);
-
-            if ($account->status !== AccountStatus::ACTIVE) {
-                throw new DomainException('Account is not active.');
-            }
-
             match ($transaction->transaction_type) {
-                TransactionType::DEPOSIT => $this->deposit($account, $transaction),
-                TransactionType::WITHDRAWAL => $this->withdraw($account, $transaction),
-                TransactionType::TRANSFER => $this->transfer($transaction),
+                TransactionType::DEPOSIT   => $this->applyDeposit($transaction),
+                TransactionType::WITHDRAWAL => $this->applyWithdrawal($transaction),
+                TransactionType::TRANSFER => $this->applyTransfer($transaction),
             };
-
-            $this->bankRepo->update($account, ['balance' => $account->balance]);
         });
     }
 
-    protected function deposit(BankAccount $account, Transaction $transaction): void
+    protected function applyDeposit(Transaction $transaction): void
     {
-        $account->balance += $transaction->transaction_amount;
+        $account = BankAccount::findOrFail($transaction->source_account_id);
+
+        // تفويض السلوك للـ State
+        $account->getState()->deposit(
+            $account,
+            $transaction->transaction_amount
+        );
+
+        $this->bankRepo->update($account, [
+            'balance' => $account->balance
+        ]);
     }
 
-    protected function withdraw(BankAccount $account, Transaction $transaction): void
+    protected function applyWithdrawal(Transaction $transaction): void
     {
-        if ($account->balance < $transaction->transaction_amount) {
-            throw new DomainException('Not enough balance to complete withdrawal');
-        }
+        $account = BankAccount::findOrFail($transaction->source_account_id);
 
-        $account->balance -= $transaction->transaction_amount;
+        $account->getState()->withdraw(
+            $account,
+            $transaction->transaction_amount
+        );
+
+        $this->bankRepo->update($account, [
+            'balance' => $account->balance
+        ]);
     }
 
-    protected function transfer(Transaction $transaction): void
+    protected function applyTransfer(Transaction $transaction): void
     {
         $source = BankAccount::findOrFail($transaction->source_account_id);
         $destination = BankAccount::findOrFail($transaction->destination_account_id);
 
-        if ($source->balance < $transaction->transaction_amount) {
-            throw new DomainException('Insufficient balance for transfer.');
-        }
+        // سحب من المصدر حسب حالته
+        $source->getState()->withdraw(
+            $source,
+            $transaction->transaction_amount
+        );
 
-        $source->balance -= $transaction->transaction_amount;
-        $destination->balance += $transaction->transaction_amount;
+        // إيداع في الوجهة حسب حالتها
+        $destination->getState()->deposit(
+            $destination,
+            $transaction->transaction_amount
+        );
 
-        $this->bankRepo->update($source, ['balance' => $source->balance]);
-        $this->bankRepo->update($destination, ['balance' => $destination->balance]);
+        $this->bankRepo->update($source, [
+            'balance' => $source->balance
+        ]);
+
+        $this->bankRepo->update($destination, [
+            'balance' => $destination->balance
+        ]);
     }
 }
