@@ -38,9 +38,19 @@ class AccountStateController extends Controller
 
     public function close(int $id)
     {
-        if (Auth::id() !== $id) {
-            return ApiResponse::sendError('You are not authorized to use this account.', 403);
+        $user = Auth::user();
+        $account = BankAccount::find($id);
+
+        if ($user->hasRole('Client')) {
+
+            if (! $user->clients) {
+                return ApiResponse::sendError('Client profile not found', 403);
+            }
+            if ($account->client_id !== $user->clients->id) {
+                return ApiResponse::sendError('Unauthorized action', 403);
+            }
         }
+
         $account = $this->stateService->close($id);
 
         return ApiResponse::sendResponse(200, 'Account closed successfully', $account);
@@ -48,8 +58,17 @@ class AccountStateController extends Controller
 
     public function freeze(int $id)
     {
-        if (Auth::id() !== $id) {
-            return ApiResponse::sendError('You are not authorized to use this account.', 403);
+        $user = Auth::user();
+        $account = BankAccount::find($id);
+
+        if ($user->hasRole('Client')) {
+
+            if (! $user->clients) {
+                return ApiResponse::sendError('Client profile not found', 403);
+            }
+            if ($account->client_id !== $user->clients->id) {
+                return ApiResponse::sendError('Unauthorized action', 403);
+            }
         }
         $account = $this->stateService->freeze($id);
 
@@ -58,8 +77,17 @@ class AccountStateController extends Controller
 
     public function suspend(int $id)
     {
-        if (Auth::id() !== $id) {
-            return ApiResponse::sendError('You are not authorized to use this account.', 403);
+        $user = Auth::user();
+        $account = BankAccount::find($id);
+
+        if ($user->hasRole('Client')) {
+
+            if (! $user->clients) {
+                return ApiResponse::sendError('Client profile not found', 403);
+            }
+            if ($account->client_id !== $user->clients->id) {
+                return ApiResponse::sendError('Unauthorized action', 403);
+            }
         }
         $account = $this->stateService->suspend($id);
 

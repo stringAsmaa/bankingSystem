@@ -37,7 +37,7 @@ Route::prefix('accounts')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
 
     Route::put('/{id}', [BankAccountController::class, 'update']);
-    Route::patch('/{id}/close', [BankAccountController::class, 'close']);
+    // Route::patch('/{id}/close', [BankAccountController::class, 'close']);
 
     // State Design Pattrens & composite pattrens
     Route::patch('/{id}/deposit/{amount}', [AccountStateController::class, 'deposit'])->middleware('auth:api'); // ايداع

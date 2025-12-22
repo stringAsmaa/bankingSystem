@@ -4,11 +4,12 @@ namespace App\Modules\Accounts\Controllers;
 
 use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
-use App\Modules\Accounts\Facades\AccountFacade;
+use Illuminate\Support\Facades\Auth;
 use App\Modules\Accounts\Models\BankAccount;
+use App\Modules\Accounts\Facades\AccountFacade;
+use App\Modules\Accounts\Services\BankAccountService;
 use App\Modules\Accounts\Requests\StoreBankAccountRequest;
 use App\Modules\Accounts\Requests\UpdateBankAccountRequest;
-use App\Modules\Accounts\Services\BankAccountService;
 
 class BankAccountController extends Controller
 {
@@ -42,19 +43,25 @@ class BankAccountController extends Controller
         );
     }
 
-    public function close($id)
-    {
-        $account = BankAccount::find($id);
+//     public function close($id)
+//     {
+//         $account = BankAccount::find($id);
 
-        if (! $account) {
-            return ApiResponse::sendError('Account not found', 404);
-        }
+//         if (! $account) {
+//             return ApiResponse::sendError('Account not found', 404);
+//         }
+//             $user = Auth::user();
+// // dd($account->client_id , $user->clients->id);
+//     if ($user->hasRole('Client')) {
+//         if ($account->client_id !== $user->clients->id) {
+//             return ApiResponse::sendError('Unauthorized action', 403);
+//         }
+//     }
+//         $closed = $this->bankService->close($account);
 
-        $closed = $this->bankService->close($account);
-
-        return ApiResponse::sendResponse(
-            200,
-            'Account closed successfully'
-        );
-    }
+//         return ApiResponse::sendResponse(
+//             200,
+//             'Account closed successfully'
+//         );
+//     }
 }
