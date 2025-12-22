@@ -54,7 +54,7 @@ Route::middleware('auth:api')->prefix('transactions')->group(function () {
     Route::post('/deposit', [DepositTransactionController::class, 'deposit']);
     Route::post('/withdraw', [WithdrawalTransactionController::class, 'withdraw']);
     Route::post('/transfer', [TransferTransactionController::class, 'transfer']);
-    Route::post('{id}/approve', [TransactionController::class, 'approveTransaction']);
+    Route::patch('{id}/approve', [TransactionController::class, 'approveTransaction']);
     Route::post('/recurring', [RecurringTransactionController::class, 'store']);
 });
 
