@@ -3,6 +3,7 @@
 namespace App\Modules\Transactions\Handlers;
 
 use App\Modules\Transactions\Models\Transaction;
+use App\Modules\Transactions\Models\TransactionSetting;
 
 class ManagerHandler implements TransactionHandler
 {
@@ -18,8 +19,8 @@ class ManagerHandler implements TransactionHandler
     public function handle(Transaction $transaction): Transaction
     {
         $manager = auth()->user();
-
-        if ($transaction->transaction_amount <= 10000) {
+        $setting = TransactionSetting::where('currency', $transaction->currency)->first();
+        if ($transaction->transaction_amount >= 2 * ($setting->max_amount) && $transaction->transaction_amount <= 3 * ($setting->max_amount)) {
             if (! $manager->hasRole('Manager')) {
                 throw new \Exception('Only Manager can approve this transaction');
             }

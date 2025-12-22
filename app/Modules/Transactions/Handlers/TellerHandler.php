@@ -3,6 +3,7 @@
 namespace App\Modules\Transactions\Handlers;
 
 use App\Modules\Transactions\Models\Transaction;
+use App\Modules\Transactions\Models\TransactionSetting;
 
 class TellerHandler implements TransactionHandler
 {
@@ -18,8 +19,8 @@ class TellerHandler implements TransactionHandler
     public function handle(Transaction $transaction): Transaction
     {
         $teller = auth()->user();
-
-        if ($transaction->transaction_amount <= 5000) {
+        $setting = TransactionSetting::where('currency', $transaction->currency)->first();
+        if ($transaction->transaction_amount <= 2 * ($setting->max_amount) && $transaction->transaction_amount >= $setting->max_amount) {
             if (! $teller->hasRole('Teller')) {
                 throw new \Exception('Only Teller can approve this transaction');
             }

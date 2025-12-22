@@ -2,20 +2,20 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserRegistrationController;
 use App\Modules\Accounts\Controllers\AuthController;
+use App\Modules\Customer\Controllers\TicketController;
 use App\Modules\Accounts\Controllers\BankAccountController;
 use App\Modules\Accounts\Controllers\AccountStateController;
+use App\Modules\Transactions\Controllers\AuditLogController;
 use App\Modules\administratives\Controllers\ReportController;
 use App\Modules\Transactions\Controllers\TransactionController;
 use App\Modules\administratives\Controllers\DashboardController;
-use App\Modules\Customer\Controllers\TicketController;
-use App\Modules\Transactions\Controllers\AuditLogController;
-use App\Modules\Transactions\Controllers\DepositTransactionController;
 use App\Modules\Transactions\Controllers\RecommendationController;
-use App\Modules\Transactions\Controllers\RecurringTransactionController;
+use App\Modules\Transactions\Controllers\DepositTransactionController;
 use App\Modules\Transactions\Controllers\TransactionSettingController;
+use App\Modules\administratives\Controllers\UserRegistrationController;
 use App\Modules\Transactions\Controllers\TransferTransactionController;
+use App\Modules\Transactions\Controllers\RecurringTransactionController;
 use App\Modules\Transactions\Controllers\WithdrawalTransactionController;
 
 Route::get('/user', function (Request $request) {
@@ -26,7 +26,6 @@ Route::get('/user', function (Request $request) {
  * تسجيل مستخدم جديد لأي رول: teller, manager, admin
  */
 
-Route::post('/registerUser', [UserRegistrationController::class, 'register']);
 
 
 
@@ -41,11 +40,11 @@ Route::prefix('accounts')->group(function () {
     Route::patch('/{id}/close', [BankAccountController::class, 'close']);
 
     // State Design Pattrens & composite pattrens
-    Route::patch('/{id}/deposit/{amount}', [AccountStateController::class, 'deposit']); // ايداع
-    Route::patch('/{id}/withdraw/{amount}', [AccountStateController::class, 'withdraw']); // سحب
-    Route::patch('/{id}/close', [AccountStateController::class, 'close']);
-    Route::patch('/{id}/freeze', [AccountStateController::class, 'freeze']);
-    Route::patch('/{id}/suspend', [AccountStateController::class, 'suspend']);
+    Route::patch('/{id}/deposit/{amount}', [AccountStateController::class, 'deposit'])->middleware('auth:api'); // ايداع
+    Route::patch('/{id}/withdraw/{amount}', [AccountStateController::class, 'withdraw'])->middleware('auth:api'); // سحب
+    Route::patch('/{id}/close', [AccountStateController::class, 'close'])->middleware('auth:api');
+    Route::patch('/{id}/freeze', [AccountStateController::class, 'freeze'])->middleware('auth:api');
+    Route::patch('/{id}/suspend', [AccountStateController::class, 'suspend'])->middleware('auth:api');
 });
 
 // ////////////////Transaction Module///////////////////
@@ -71,6 +70,7 @@ Route::get('/deposit/cancel', [DepositTransactionController::class, 'cancel'])->
 Route::middleware(['auth:api', 'role:Admin|Manager'])
     ->get('/dashboard', [DashboardController::class, 'index']);
 
+Route::post('/registerUser', [UserRegistrationController::class, 'register']);
 
 
 Route::prefix('reports')->middleware('auth:api')->group(function () {

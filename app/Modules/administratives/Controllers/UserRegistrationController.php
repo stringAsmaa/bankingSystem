@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Modules\administratives\Controllers;
 
 use App\Helpers\ApiResponse;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\registerRequest;
-use App\Services\UserRegistrationService;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use App\Modules\administratives\Services\UserRegistrationService;
 
 class UserRegistrationController extends Controller
 {
